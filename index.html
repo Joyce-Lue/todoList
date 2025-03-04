@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://kit.fontawesome.com/5724a4f7db.js" crossorigin="anonymous"></script>
+    <title>TodoList</title>
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <div style="position: relative;">
+                <ul class="noBullets horizontallyCenter">
+                    <li class="navbarLi filter" data-default>
+                        <button data-filter="all" class="navbarHeader active">My Tasks</button>
+                        <span class="Line"></span>
+                    </li>
+                    <li class="navbarLi filter">
+                        <button data-filter="active" class="navbarHeader">In Progress</button>
+                        <span class="Line"></span>
+                    </li>
+                    <li class="navbarLi filter">
+                        <button data-filter="completed" class="navbarHeader">Completed</button>
+                        <span class="Line"></span>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main>
+            <!-- 新增代辦事項 -->
+            <input class="add-block" id="add-block" type="text" placeholder="+ Add Task" onfocus="showAddTask()">
+
+            <!-- 點開新增後 -->
+            <div class="add-task" id="add-task">
+                <div class="add-item">
+                    <input type="checkbox" name="completed" id="completed">
+                    <!-- <label for="completed"></label> -->
+                    <input type="text" id="todoText" placeholder="Type Something Here…">
+                    <span class="star">★</span>
+                    <i class="fa-solid fa-pen"></i>
+                </div>
+                <div>
+                    <!-- 到期日 -->
+                    <i class="fa-solid fa-calendar-days symbol" style="margin-top: 23px;"></i>
+                    <span>Deadline</span>
+                    <br>
+                    <input class="date" style="margin-left: 98px;" type="date" name="deadline" id="deadline"
+                        min="2025-01-01" max="2030-12-31">
+                    <input class="date" type="time" name="time" id="time">
+                    <!-- 附加檔案 -->
+                    <p>
+                        <i class="fa-solid fa-file symbol"></i>
+                        <span>File</span>
+                    </p>
+                    <span id="filename" class="filename"></span>
+                    <button class="custom-btn" onclick="document.getElementById('file').click()">+</button>
+                    <input type="file" name="file" id="file" onchange="updateFileName()">
+                    <!-- 備註 -->
+                    <p>
+                        <i class="fa-solid fa-comment symbol"></i>
+                        <span>Comment</span>
+                    </p>
+                    <textarea name="comment" id="comment" cols="30" rows="10" placeholder="Type your memo here..."
+                        readonly></textarea>
+                    <br>
+                    <!-- 取消、新增 -->
+                    <div style="display: flex;">
+                        <button id="addCancel" class="cancel" onclick="closeAddTask()">&#x2715; Cancel</button>
+                        <button id="addTodo" class="add" onclick="closeAddTask()">&plus; Add Task</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <div id="todoList"></div>
+                <div class="left"></div>
+                <div class="completed" style="display: none;"></div>
+            </div>
+
+        </main>
+    </div>
+
+
+    <script>
+        function showAddTask() {
+            const addTaskDiv = document.getElementById('add-task');
+            const addBlock = document.getElementById('add-block');
+            addTaskDiv.style.display = 'block';
+            addBlock.style.display = 'none';
+        }
+
+        function closeAddTask() {
+            const addTaskDiv = document.getElementById('add-task');
+            const addBlock = document.getElementById('add-block');
+            addTaskDiv.style.display = 'none';
+            addBlock.style.display = 'block';
+        }
+
+        function updateFileName() {
+            const fileInput = document.getElementById('file');
+            const filename = document.getElementById('filename');
+            if (fileInput.files.length > 0) {
+                filename.textContent = fileInput.files[0].name;
+            } else {
+                filename.textContent = '';
+            }
+        }
+
+        const textarea = document.getElementById('comment');
+        textarea.addEventListener('dblclick', function () {
+            this.removeAttribute('readonly');
+            this.focus();
+        })
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== textarea) {
+                textarea.setAttribute('readonly', true);
+            }
+        })
+
+    </script>
+    <script src="./app.js"></script>
+</body>
+
+</html>
