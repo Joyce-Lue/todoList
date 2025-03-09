@@ -72,6 +72,58 @@ document.addEventListener("DOMContentLoaded", () => {
     completedDiv.style.display = "block";
   }
 
+  function enableDragAndDrop() {
+    const todoItems = document.querySelectorAll(".add-item");
+    let draggedItem = null;
+
+    todoItems.forEach((item) => {
+      item.addEventListener("dragstart", (e) => {
+        draggedItem = item;
+        item.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", item.dataset.id);
+      });
+
+      item.addEventListener("dragend", () => {
+        draggedItem.classList.remove("dragging");
+        draggedItem = null;
+      });
+
+      item.addEventListener("dragover", (e) => {
+        e.preventDefault(); // 允許放置
+        const afterElement = getDragAfterElement(todoList, e.clientY);
+        if (afterElement == null) {
+          todoList.appendChild(draggedItem);
+        } else {
+          todoList.insertBefore(draggedItem, afterElement);
+        }
+      });
+
+      item.addEventListener("drop", (e) => {
+        e.preventDefault();
+      });
+    });
+  }
+
+  // 判斷拖曳到哪個元素的前面
+  function getDragAfterElement(container, y) {
+    const draggableElements = [
+      ...container.querySelectorAll(".add-item:not(.dragging)"),
+    ];
+
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
+  }
+
   function renderTodos(filter = "all") {
     todoList.innerHTML = "";
     let filteredTodos = todos.filter((todo) => {
@@ -89,6 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const div = document.createElement("div");
       div.classList.add("add-item");
       div.style.height = "102px";
+      div.setAttribute("draggable", "true");
+      div.dataset.id = todo.id;
 
       div.innerHTML = `
           <input type="checkbox" name="completed" id="completed" ${
@@ -107,8 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <i class="fa-solid fa-file"></i>
               <i class="fa-solid fa-comment"></i>
           </div>
+          <button class="delete" data-id="${todo.id}">刪除</button>
       `;
-      // <button class="delete" data-id="${todo.id}">刪除</button>
 
       // 點擊星星後改變背景顏色
       if (todo.important) {
@@ -122,6 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 待辦事項統計
     filter === "completed" ? updateCompletedCount() : updateTaskCount();
+
+    enableDragAndDrop();
   }
 
   addTodoBtn.addEventListener("click", () => {
@@ -146,11 +202,11 @@ document.addEventListener("DOMContentLoaded", () => {
       saveTodos();
       renderTodos();
     }
-    // if (e.target.classList.contains("delete")) {
-    //   todos = todos.filter((todo) => todo.id !== id);
-    //   saveTodos();
-    //   renderTodos();
-    // }
+    if (e.target.classList.contains("delete")) {
+      todos = todos.filter((todo) => todo.id !== id);
+      saveTodos();
+      renderTodos();
+    }
   });
 
   todoList.addEventListener("input", (e) => {
@@ -187,6 +243,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
       saveTodos();
       renderTodos();
+    }
+  });
+
+  // 處理編輯按鈕
+  todoList.addEventListener("click", (e) => {
+    if (e.target.classList.contains("fa-pen")) {
+      const taskElement = e.target.closest(".add-item");
+      const taskId = Number(taskElement.getAttribute("data-id"));
+      const todo = todos.find((t) => t.id === taskId);
+      if (!todo) return;
+
+      const addTaskDiv = document.getElementById("add-task");
+
+      // 填入待辦事項資料
+      addTaskDiv.querySelector("#completed").checked = todo.done;
+      addTaskDiv.querySelector("#todoText").value = todo.text;
+      addTaskDiv.querySelector("#deadline").value = todo.deadline || "";
+      addTaskDiv.querySelector("#time").value = todo.time || "";
+      addTaskDiv.querySelector("#filename").textContent = todo.file
+        ? todo.file.name
+        : "";
+      addTaskDiv.querySelector("#comment").value = todo.comment || "";
+
+      // 讓textarea可編輯
+      addTaskDiv.querySelector("#comment").removeAttribute("readonly");
+
+      // 顯示編輯區
+      addTaskDiv.style.display = "block";
     }
   });
 

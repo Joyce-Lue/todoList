@@ -40,7 +40,7 @@
 
             <!-- 點開新增後 -->
             <div class="add-task" id="add-task">
-                <div class="add-item">
+                <div class="add-item" draggable="true" data-id="${todo.id}">
                     <input type="checkbox" name="completed" id="completed">
                     <!-- <label for="completed"></label> -->
                     <input type="text" id="todoText" placeholder="Type Something Here…">
@@ -74,7 +74,8 @@
                     <!-- 取消、新增 -->
                     <div style="display: flex;">
                         <button id="addCancel" class="cancel" onclick="closeAddTask()">&#x2715; Cancel</button>
-                        <button id="addTodo" class="add" onclick="closeAddTask()">&plus; Add Task</button>
+                        <button id="addTodo" class="add" onclick="resetAddTaskForm(); closeAddTask();">&plus; Add
+                            Task</button>
                     </div>
                 </div>
             </div>
@@ -97,11 +98,22 @@
             addBlock.style.display = 'none';
         }
 
+        function resetAddTaskForm() {
+            document.getElementById("completed").checked = false;
+            document.getElementById("todoText").value = "";
+            document.getElementById("deadline").value = "";
+            document.getElementById("time").value = "";
+            document.getElementById("filename").textContent = "";
+            document.getElementById("comment").value = "";
+            document.getElementById("comment").setAttribute("readonly", "true");
+        }
+
         function closeAddTask() {
             const addTaskDiv = document.getElementById('add-task');
             const addBlock = document.getElementById('add-block');
             addTaskDiv.style.display = 'none';
             addBlock.style.display = 'block';
+            resetAddTaskForm();
         }
 
         function updateFileName() {
